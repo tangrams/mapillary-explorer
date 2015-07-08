@@ -1,88 +1,343 @@
 cameras:
     camera1:
         type: perspective
+        vanishing_point: [-.25, -.75]
+    camera2:
+        type: isometric
+        axis: [.0, 1.]
+        active: true
 
 lights:
     light1:
         type: directional
-        direction: [0, 1, -.5]
-        diffuse: .3
-        ambient: 1
+        diffuse: 1
+        ambient: .35
 
 sources:
-    osm:
+    mapillary:
         type: MVT
-        url:  https://d2munx5tg0hw47.cloudfront.net/tiles/{z}/{x}/{y}.mapbox
-    # osm:
-    #     type: TopoJSONTiles
-    #     url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-HqUVidw
+        url:  //d2munx5tg0hw47.cloudfront.net/tiles/{z}/{x}/{y}.mapbox
+    osm:
+        type: GeoJSONTiles
+        url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.json?api_key=vector-tiles-HqUVidw
+        # type: TopoJSONTiles
+        # url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson?api_key=vector-tiles-HqUVidw
+        # type: GeoJSONTiles
+        # url:  //tilestache-dev2-us-east-ext-1189213459.us-east-1.elb.amazonaws.com/osm/all/{z}/{x}/{y}.json?api_key=vector-tiles-HqUVidw
+        # type: TopoJSONTiles
+        # url: //tilestache-dev2-us-east-ext-1189213459.us-east-1.elb.amazonaws.com/osm/all/{z}/{x}/{y}.topojson
 
 layers:
+
+
     earth:
         data: { source: osm }
+        properties: 
+            key_text: ""
+            value_text: ""
         draw:
             polygons:
+                interactive: true
                 order: 0
-                color: '#ddeeee'
+                color: [.5, .5, .5]
+        red:
+            filter: |
+                function () {
+                    return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+                }
+            draw:
+                lines:
+                    order: 100
+                    color: red
+                    width: 3px
+                text:
+                    order: 100
+                    text_source: name
+                    font:
+                        typeface: 8pt Lucida Grande
+                        fill: white
+                        # stroke: { color: black, width: 4 }
 
-    landuse:
-        data: { source: osm }
-        draw:
-            polygons:
-                order: 1
-                color: '#aaffaa'
+    # landuse:
+    #     data: { source: osm }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         polygons:
+    #             interactive: true
+    #             order: 1
+    #             color: [.6, .6, .6]
+    #     red:
+    #         filter: |
+    #             function () {
+    #                 return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+    #             }
+    #         draw:
+    #             lines:
+    #                 order: 100
+    #                 color: red
+    #                 width: 3px
+    #             text:
+    #                 order: 100
+    #                 text_source: name
+    #                 font:
+    #                     typeface: 8pt Lucida Grande
+    #                     fill: white
+    #                     stroke: { color: black, width: 4 }
 
     water:
         data: { source: osm }
+        properties: 
+            key_text: ""
+            value_text: ""
         draw:
             polygons:
+                interactive: true
                 order: 2
-                color: '#88bbee'
+                color: [.4, .4, .4]
+            lines:
+                order: 3
+                color: [.5, .5, .5]
+                width: 1px
+        red:
+            filter: |
+                function () {
+                    return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+                }
+            draw:
+                lines:
+                    order: 100
+                    color: red
+                    width: 3px
+                text:
+                    order: 100
+                    text_source: name
+                    font:
+                        typeface: 8pt Lucida Grande
+                        fill: white
+                        # stroke: { color: black, width: 4 }
+
+    transit:
+        data: { source: osm }
+        # filter:
+        #     route: subway
+        #     operator: Metropolitan Transportation Authority
+        properties: 
+            key_text: ""
+            value_text: ""
+        draw:
+            lines:
+                interactive: true
+                order: 2
+                # color: '#bbb'
+                color: blue
+                width: 2px
+            text:
+                order: 2
+                text_source: route_name
+                font:
+                    typeface: 10px Helvetica
+                    fill: white
+        match:
+            filter: |
+                function () {
+                    return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+                }
+            draw:
+                lines:
+                    interactive: true
+                    order: 100
+                    color: red
+                    width: 4px
+                text:
+                    order: 100
+                    text_source: name
+                    font:
+                        typeface: 8pt Lucida Grande
+                        fill: white
 
     roads:
         data: { source: osm }
-        filter:
-            not: { kind: ["path", "rail"] }
+        properties: 
+            key_text: ""
+            value_text: ""
         draw:
             lines:
-                order: 4
-                color: gray
-                width: 8
-                cap: round
-        highway:
-            filter:
-                kind: highway
+                interactive: true
+                order: 2
+                color: '#bbb'
+                width: 1px
+        red:
+            filter: |
+                function () {
+                    return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+                }
             draw:
                 lines:
-                    order: 5
-                    color: '#cc6666'
-                    width: 12
-                    outline:
-                        color: grey
-                        width: 1.5
-        minor_road:
-            filter:
-                kind: minor_road
-            draw:
-                lines:
-                    order: 3
-                    color: lightgrey
-                    width: 5
+                    order: 100
+                    color: red
+                    width: 2px
+                text:
+                    order: 100
+                    text_source: name
+                    font:
+                        typeface: 8pt Lucida Grande
+                        fill: white
+                        stroke: { color: black, width: 4 }
 
-    buildings:
-        data: { source: osm }
+    # boundaries:
+    #     data: { source: osm }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         lines:
+    #             interactive: true
+    #             order: 3
+    #             color: '#ccc'
+    #             width: 3px
+    #     red:
+    #         filter: |
+    #             function () {
+    #                 return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+    #             }
+    #         draw:
+    #             lines:
+    #                 order: 100
+    #                 color: red
+    #                 width: 2px
+    #             text:
+    #                 order: 100
+    #                 text_source: name
+    #                 font:
+    #                     typeface: 8pt Lucida Grande
+    #                     fill: white
+    #                     # stroke: { color: black, width: 4 }
+
+    # buildings:
+    #     data: { source: osm }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         polygons:
+    #             interactive: true
+    #             order: 4
+    #             color: '#888'
+    #     red:
+    #         filter: |
+    #             function () {
+    #                 return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+    #             }
+    #         draw:
+    #             lines:
+    #                 order: 100
+    #                 color: red
+    #                 width: 3px
+    #             text:
+    #                 order: 100
+    #                 text_source: name
+    #                 font:
+    #                     typeface: 8pt Lucida Grande
+    #                     fill: white
+    #                     # stroke: { color: black, width: 4 }
+
+    # places-dot-outlines:
+    #     data: { source: osm, layer: places }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         points:
+    #             order: 10
+    #             color: black
+    #             size: 14px
+
+    # places:
+    #     data: { source: osm }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         points:
+    #             interactive: true
+    #             order: 11
+    #             color: '#888'
+    #             size: 10px
+    #         text:
+    #             order: 12
+    #             text_source: name
+    #             font:
+    #                 typeface: 8pt Helvetica
+    #                 fill: '#ccc'
+    #     red:
+    #         filter: |
+    #             function () {
+    #                 return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+    #             }
+    #         draw:
+    #             points:
+    #                 interactive: true
+    #                 order: 100
+    #                 color: '#c88'
+    #                 size: 10px
+    #             text:
+    #                 order: 101
+    #                 text_source: name
+    #                 font:
+    #                     fill: red
+
+    # landuse_labels-dot-outlines:
+    #     data: { source: osm, layer: landuse_labels }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         points:
+    #             order: 10
+    #             color: black
+    #             size: 12px
+
+    # landuse_labels:
+    #     data: { source: osm }
+    #     properties: 
+    #         key_text: ""
+    #         value_text: ""
+    #     draw:
+    #         points:
+    #             interactive: true
+    #             order: 11
+    #             color: '#888'
+    #             size: 8px
+    #         text:
+    #             order: 12
+    #             text_source: name
+    #             font:
+    #                 typeface: 8pt Helvetica
+    #                 fill: '#ccc'
+    #     red:
+    #         filter: |
+    #             function () {
+    #                 return feature[properties.key_text] && feature[properties.key_text].toLowerCase().indexOf(properties.value_text.toLowerCase()) > -1;
+    #             }
+    #         draw:
+    #             points:
+    #                 interactive: true
+    #                 order: 100
+    #                 color: '#c88'
+    #                 size: 10px
+    #             text:
+    #                 order: 100
+    #                 text_source: name
+    #                 font:
+    #                     fill: red
+
+    mapillary-sequences:
+        data: { source: mapillary }
         draw:
-            polygons:
-                order: 6
-                color: |
-                    function () {
-                        var h = feature.height || 20;
-                        h = Math.min((h + 50)/ 255, .8); // max brightness: .8
-                        h = Math.max(h, .4); // min brightness: .4
-                        return [h, h, h];
-                    }
-        3d-buildings:
-            filter: { $zoom: { min: 15 } }
-            draw:
-                polygons:
-                    extrude: function () { return feature.height > 20 || $zoom >= 16; }
+            lines:
+                interactive: true
+                order: 100
+                color: red
+                width: 2px
