@@ -45,11 +45,6 @@ map = (function () {
         window.location.hash = url_options.join('/');
     }
 
-    // function updateHash () {
-    //     newhash = hash.lastHash + "/"+scene.config.layers["roads"].properties.key_text + "/"+scene.config.layers["roads"].properties.value_text;
-    //     if (window.location != newhash) window.location = newhash
-    // }
-
     /*** Map ***/
 
     var map = L.map('map',
@@ -111,9 +106,7 @@ map = (function () {
         gui.valueinput = valuetext;
         var valueinput = gui.add(gui, 'valueinput').name("value").listen();
         
-            // console.log(1);
         updateKey(keytext);
-                    // console.log(2);
         updateValue(valuetext);
         keyinput.onChange(function(value) {
             updateKey(value);
@@ -127,6 +120,28 @@ map = (function () {
         keyinput.domElement.onclick = function() { this.getElementsByTagName('input')[0].select(); };
         valueinput.domElement.id = "valuefilter";
         valueinput.domElement.onclick = function() { this.getElementsByTagName('input')[0].select(); };
+
+        gui.clear = function() {
+            clearValues();
+        };
+        var clear = gui.add(gui, 'clear')
+        
+        gui.ceiling = 1.0;
+        var ceiling = gui.add(gui, 'ceiling', 0, 1);
+        ceiling.onFinishChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.ceiling = value;
+            scene.rebuildGeometry();
+            // scene.requestRedraw();
+        });
+
+        gui.floor = .0;
+        var floor = gui.add(gui, 'floor', 0, 1);
+        floor.onFinishChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.floor = value;
+            scene.rebuildGeometry();
+            // scene.requestRedraw();
+        });
+        
     }
 
     // var scene.picking = false;
@@ -184,16 +199,43 @@ map = (function () {
             }
         });
 
+        var click = false;
+        var clickhash = map.getCenter();
+        console.log(clickhash);
         // toggle popup picking state
-        scene.container.addEventListener('click', function (event) {
-            picking = !picking;
-        });
+        scene.container.onmousedown = function (event) {
+                // console.log('down');
+            click = true;
+            clickhash = map.getCenter();
+            console.log(clickhash);
+            // picking = !picking;
+        };
         // toggle popup picking state
-        scene.container.addEventListener('drag', function (event) {
+        scene.container.onmouseup = function (event) {
             picking = false;
-        });
+            console.log(clickhash);
+            if ( clickhash == map.getCenter() ) {
+                console.log('click');
+                picking = true;
+            } else {
+                console.log('drag');
+                picking = false;
+                clickhash = map.getCenter();   
+                console.log(clickhash);       }
+        };
     }
 
+    window.clearValues = function() {
+        keytext = "";
+        valuetext = "";
+        gui.keytext= "";
+        gui.keyinput= "";
+        gui.valuetext= "";
+        gui.valueinput= "";
+        updateKey(keytext);
+        updateValue(valuetext);
+        updateURL();
+    }
     window.setValuesFromSpan = function(span) {
         keytext = span.getAttribute("key");
         valuetext = span.getAttribute("value");
