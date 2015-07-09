@@ -20,9 +20,9 @@ map = (function () {
     // leaflet-style URL hash pattern:
     // #[zoom],[lat],[lng]
     var url_hash = window.location.hash.slice(1, window.location.hash.length).split('/');
-    keytext = "kind";
+    keytext = "";
     window.keytext = keytext;
-    valuetext = "none";
+    valuetext = "";
     window.valuetext = valuetext;
 
     if (url_hash.length >= 3) {
