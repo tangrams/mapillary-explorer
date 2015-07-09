@@ -1,3 +1,5 @@
-# explorer
+# mapillary-explorer
 
-http://tangrams.github.io/explorer
+Live demo:
+
+http://tangrams.github.io/mapillary-explorer
