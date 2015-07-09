@@ -9,10 +9,11 @@ map = (function () {
     var locations = {
         'Oakland': [37.8044, -122.2708, 15],
         'New York': [40.70531887544228, -74.00976419448853, 15],
-        'Seattle': [47.5937, -122.3215, 15]
+        'Seattle': [47.5937, -122.3215, 15],
+        'Malmö': [55.6060, 13.0010, 15]
     };
 
-    var map_start_location = locations['New York'];
+    var map_start_location = locations['Malmö'];
 
     /*** URL parsing ***/
 
@@ -21,7 +22,7 @@ map = (function () {
     var url_hash = window.location.hash.slice(1, window.location.hash.length).split('/');
     keytext = "kind";
     window.keytext = keytext;
-    valuetext = "major_road";
+    valuetext = "none";
     window.valuetext = valuetext;
 
     if (url_hash.length >= 3) {
@@ -131,8 +132,6 @@ map = (function () {
     // var scene.picking = false;
     // Feature selection
     function initFeatureSelection () {
-        // console.log(1);
-        // console.log(4);
         // Selection info shown on hover
         var selection_info = document.createElement('div');
         selection_info.setAttribute('class', 'label');
@@ -141,50 +140,38 @@ map = (function () {
 
         // Show selected feature on hover
         scene.container.addEventListener('mousemove', function (event) {
-        // console.log(2);
             if (picking) return;
             var pixel = { x: event.clientX, y: event.clientY };
 
             scene.getFeatureAt(pixel).then(function(selection) {    
-        // console.log(3);
                 if (!selection) {
                     return;
                 }
                 var feature = selection.feature;
                 if (feature != null) {
-                    // console.log("selection map: " + JSON.stringify(feature));
-        // console.log(5);
-
                     var label = '';
                     if (feature.properties != null) {
-        // console.log(6);
                         // console.log(feature.properties);
                         var obj = JSON.parse(JSON.stringify(feature.properties));
                         label = "";
-        // console.log(7);
                         for (x in feature.properties) {
+                            if (x == "keys" || x == "cas" ) continue;
                             val = feature.properties[x]
                             label += "<span class='labelLine' key="+x+" value="+val+" onclick='setValuesFromSpan(this)'>"+x+" : "+val+"</span><br>"
                         }
                     }
 
                     if (label != '') {
-        // console.log(8);
-        // console.log(12);
-        // console.log(13);
-        // console.log(14);
                         selection_info.style.left = (pixel.x + 5) + 'px';
                         selection_info.style.top = (pixel.y + 15) + 'px';
                         selection_info.innerHTML = '<span class="labelInner">' + label + '</span>';
                         scene.container.appendChild(selection_info);
                     }
                     else if (selection_info.parentNode != null) {
-        // console.log(9);
                         selection_info.parentNode.removeChild(selection_info);
                     }
                 }
                 else if (selection_info.parentNode != null) {
-        // console.log(10);
                     selection_info.parentNode.removeChild(selection_info);
                 }
             });
@@ -196,12 +183,6 @@ map = (function () {
                 }
             }
         });
-        // console.log(11);
-
-        // capture popup clicks
-        // scene.labelLine.addEventListener('click', function (event) {
-        //     return true;
-        // });
 
         // toggle popup picking state
         scene.container.addEventListener('click', function (event) {
@@ -222,8 +203,6 @@ map = (function () {
         gui.valueinput=span.getAttribute("value");
         updateKey(keytext);
         updateValue(valuetext);
-        // scene.rebuildGeometry();
-        // scene.requestRedraw();
         updateURL();
     }
 
@@ -240,11 +219,6 @@ map = (function () {
         });
         layer.addTo(map);
     });
-
-    window.hsv = function () {
-
-        return [1, 1, 0];
-    }
 
     return map;
 
