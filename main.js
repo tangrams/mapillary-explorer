@@ -77,6 +77,7 @@ map = (function () {
         keytext = value;
 
         for (layer in scene.config.layers) {
+            // console.log(layer);
             if (layer == "earth") continue;
             scene.config.layers[layer].properties.key_text = value;
         }
@@ -100,7 +101,6 @@ map = (function () {
     // Create dat GUI
     var gui = new dat.GUI({ autoPlace: true, hideable: false, width: 300 });
     function addGUI () {
-
         gui.domElement.parentNode.style.zIndex = 5; // make sure GUI is on top of map
         window.gui = gui;
 
@@ -110,7 +110,9 @@ map = (function () {
         gui.valueinput = valuetext;
         var valueinput = gui.add(gui, 'valueinput').name("value").listen();
         
+            // console.log(1);
         updateKey(keytext);
+                    // console.log(2);
         updateValue(valuetext);
         keyinput.onChange(function(value) {
             updateKey(value);
@@ -118,6 +120,7 @@ map = (function () {
         valueinput.onChange(function(value) {
             updateValue(value);
         });
+
         //select input text when you click on it
         keyinput.domElement.id = "keyfilter";
         keyinput.domElement.onclick = function() { this.getElementsByTagName('input')[0].select(); };
@@ -128,6 +131,8 @@ map = (function () {
     // var scene.picking = false;
     // Feature selection
     function initFeatureSelection () {
+        // console.log(1);
+        // console.log(4);
         // Selection info shown on hover
         var selection_info = document.createElement('div');
         selection_info.setAttribute('class', 'label');
@@ -136,22 +141,27 @@ map = (function () {
 
         // Show selected feature on hover
         scene.container.addEventListener('mousemove', function (event) {
+        // console.log(2);
             if (picking) return;
             var pixel = { x: event.clientX, y: event.clientY };
 
             scene.getFeatureAt(pixel).then(function(selection) {    
+        // console.log(3);
                 if (!selection) {
                     return;
                 }
                 var feature = selection.feature;
                 if (feature != null) {
                     // console.log("selection map: " + JSON.stringify(feature));
+        // console.log(5);
 
                     var label = '';
                     if (feature.properties != null) {
+        // console.log(6);
                         // console.log(feature.properties);
                         var obj = JSON.parse(JSON.stringify(feature.properties));
                         label = "";
+        // console.log(7);
                         for (x in feature.properties) {
                             val = feature.properties[x]
                             label += "<span class='labelLine' key="+x+" value="+val+" onclick='setValuesFromSpan(this)'>"+x+" : "+val+"</span><br>"
@@ -159,16 +169,22 @@ map = (function () {
                     }
 
                     if (label != '') {
+        // console.log(8);
+        // console.log(12);
+        // console.log(13);
+        // console.log(14);
                         selection_info.style.left = (pixel.x + 5) + 'px';
                         selection_info.style.top = (pixel.y + 15) + 'px';
                         selection_info.innerHTML = '<span class="labelInner">' + label + '</span>';
                         scene.container.appendChild(selection_info);
                     }
                     else if (selection_info.parentNode != null) {
+        // console.log(9);
                         selection_info.parentNode.removeChild(selection_info);
                     }
                 }
                 else if (selection_info.parentNode != null) {
+        // console.log(10);
                     selection_info.parentNode.removeChild(selection_info);
                 }
             });
@@ -180,6 +196,7 @@ map = (function () {
                 }
             }
         });
+        // console.log(11);
 
         // capture popup clicks
         // scene.labelLine.addEventListener('click', function (event) {
@@ -223,6 +240,11 @@ map = (function () {
         });
         layer.addTo(map);
     });
+
+    window.hsv = function () {
+
+        return [1, 1, 0];
+    }
 
     return map;
 
