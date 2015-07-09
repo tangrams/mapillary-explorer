@@ -2,6 +2,7 @@
 /*global Tangram, gui */
 
 var picking = false;
+var clicking = false;
 map = (function () {
 // (function () {
     // 'use strict';
@@ -148,84 +149,91 @@ map = (function () {
     // Feature selection
     function initFeatureSelection () {
         // Selection info shown on hover
-        var selection_info = document.createElement('div');
+        window.selection_info = document.createElement('div');
         selection_info.setAttribute('class', 'label');
         selection_info.style.display = 'block';
         selection_info.style.zindex = 1000;
 
         // Show selected feature on hover
         scene.container.addEventListener('mousemove', function (event) {
-            if (picking) return;
+            if (picking && !clicking) return;
             var pixel = { x: event.clientX, y: event.clientY };
-
             scene.getFeatureAt(pixel).then(function(selection) {    
                 if (!selection) {
                     return;
                 }
                 var feature = selection.feature;
                 if (feature != null) {
-                    var label = '';
                     if (feature.properties != null) {
-                        // console.log(feature.properties);
+                        selection_info.style.left = (pixel.x + 5) + 'px';
+                        selection_info.style.top = (pixel.y + 15) + 'px';
                         var obj = JSON.parse(JSON.stringify(feature.properties));
-                        label = "";
+                        clearLabel();
                         for (x in feature.properties) {
                             if (x == "keys" || x == "cas" ) continue;
                             val = feature.properties[x]
-                            label += "<span class='labelLine' key="+x+" value="+val+" onclick='setValuesFromSpan(this)'>"+x+" : "+val+"</span><br>"
+                            var line = document.createElement('span');
+                            line.setAttribute("class", "labelLine");
+                            line.setAttribute("key", x);
+                            line.setAttribute("value", val);
+                            line.innerHTML = x + " : " + val;
+                            line.onmousedown = function(e){e.stopPropagation()};
+                            line.onmouseup = function(e){setValuesFromSpan(e)};
+                            selection_info.appendChild(line);
                         }
-                    }
+                    scene.container.appendChild(selection_info);
+                    // console.log(toString(selection_info));
 
-                    if (label != '') {
-                        selection_info.style.left = (pixel.x + 5) + 'px';
-                        selection_info.style.top = (pixel.y + 15) + 'px';
-                        selection_info.innerHTML = '<span class="labelInner">' + label + '</span>';
-                        scene.container.appendChild(selection_info);
-                    }
-                    else if (selection_info.parentNode != null) {
-                        selection_info.parentNode.removeChild(selection_info);
-                    }
+                    } else clearLabel();
                 }
-                else if (selection_info.parentNode != null) {
-                    selection_info.parentNode.removeChild(selection_info);
-                }
+                else clearLabel();
             });
 
             // Don't show labels while panning
-            if (scene.panning == true) {
-                if (selection_info.parentNode != null) {
-                    selection_info.parentNode.removeChild(selection_info);
-                }
-            }
+            if (scene.panning == true) clearLabel();
+
         });
 
-        var click = false;
+        // empty label
+        function clearLabel() {
+            if (selection_info.parentNode == null) return;
+            while (selection_info.firstChild) {
+                selection_info.removeChild(selection_info.firstChild);
+            }
+            selection_info.parentNode.removeChild(selection_info);
+        }
+
         var clickhash = map.getCenter();
-        console.log(clickhash);
-        // toggle popup picking state
+
+        // catch mousedown
         scene.container.onmousedown = function (event) {
-                // console.log('down');
-            click = true;
-            clickhash = map.getCenter();
-            console.log(clickhash);
-            // picking = !picking;
+            clicking = true;
+            clickhash = map.getCenter().lat + map.getCenter().lng;
         };
-        // toggle popup picking state
+
+        // catch mouseup
         scene.container.onmouseup = function (event) {
-            picking = false;
-            console.log(clickhash);
-            if ( clickhash == map.getCenter() ) {
-                console.log('click');
-                picking = true;
+            clicking = false;
+            // check to see if the mouse moved since the mousedown
+            hashcheck = map.getCenter().lat + map.getCenter().lng;
+            if ( clickhash == hashcheck ) {
+                // no mousemove, it was a click
+                picking = !picking;
+                var menuVisible = (selection_info.parentNode != null);
+                if (!menuVisible && picking || !picking) {
+                    // clicked on empty space, clear filter
+                    clearValues();
+                }
             } else {
-                console.log('drag');
+                // mousemove, it was a drag
                 picking = false;
-                clickhash = map.getCenter();   
-                console.log(clickhash);       }
+            }
         };
     }
 
     window.clearValues = function() {
+        if (selection_info.parentNode != null) selection_info.parentNode.removeChild(selection_info);
+        picking = false;
         keytext = "";
         valuetext = "";
         gui.keytext= "";
@@ -236,7 +244,9 @@ map = (function () {
         updateValue(valuetext);
         updateURL();
     }
-    window.setValuesFromSpan = function(span) {
+    window.setValuesFromSpan = function(e) {
+        console.log(3);
+        span = e.target;
         keytext = span.getAttribute("key");
         valuetext = span.getAttribute("value");
         gui.keytext=span.getAttribute("key");
@@ -246,6 +256,8 @@ map = (function () {
         updateKey(keytext);
         updateValue(valuetext);
         updateURL();
+        e.stopPropagation();
+        return false;
     }
 
     // Add map
