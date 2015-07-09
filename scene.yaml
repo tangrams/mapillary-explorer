@@ -124,8 +124,8 @@ layers:
         properties: 
             key_text: ""
             value_text: ""
-            ceiling: 1.
-            floor: 0
+            ceiling: '#ff0000'
+            floor: '#0000ff'
         draw:
             lines:
                 interactive: true
@@ -134,6 +134,39 @@ layers:
                 color: |
                     function() {
                         if (properties.key_text != "" || properties.value_text != "") return [.5, .5, .5];
+                        function hexToRgb(hex) {
+                            var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                            return result ? {
+                                r: parseInt(result[1], 16),
+                                g: parseInt(result[2], 16),
+                                b: parseInt(result[3], 16)
+                            } : null;
+                        }
+
+                        function RGBtoHSV(rgb) {
+                            var r = rgb.r;
+                            var g = rgb.g;
+                            var b = rgb.b;
+                            var max = Math.max(r, g, b), min = Math.min(r, g, b),
+                                d = max - min,
+                                h,
+                                s = (max === 0 ? 0 : d / max),
+                                v = max / 255;
+
+                            switch (max) {
+                                case min: h = 0; break;
+                                case r: h = (g - b) + d * (g < b ? 6: 0); h /= 6 * d; break;
+                                case g: h = (b - r) + d * 2; h /= 6 * d; break;
+                                case b: h = (r - g) + d * 4; h /= 6 * d; break;
+                            }
+
+                            return {
+                                h: h,
+                                s: s,
+                                v: v
+                            };
+                        }
+
                         function HSVtoRGB(h, s, v) {
                             var r, g, b, i, f, p, q, t;
                             i = Math.floor(h * 6);
@@ -158,8 +191,19 @@ layers:
                         var ceiling = properties.ceiling;
                         var floor = properties.floor;
 
-                        var v = ((ceiling - floor) * (t - min))/(max - min) + floor;
-                        return HSVtoRGB(1/v, 1, 1);
+                        var ceilinghsv = RGBtoHSV(hexToRgb(ceiling));
+                        var floorhsv = RGBtoHSV(hexToRgb(floor));
+
+                        var h, s, v;
+                        h = ((ceilinghsv.h - floorhsv.h) * (t - min))/(max - min) + floorhsv.h;
+                        s = ((ceilinghsv.s - floorhsv.s) * (t - min))/(max - min) + floorhsv.s;
+                        v = ((ceilinghsv.v - floorhsv.v) * (t - min))/(max - min) + floorhsv.v;
+
+                        var rgb = HSVtoRGB(h, s, v);
+                        console.log(rgb);
+                        return rgb;
+                        # setTimeout('return rgb', 1000);
+                        # setTimeout('function(){console.log("test")}', 1000);
                     }
                 width: 3px
             text:

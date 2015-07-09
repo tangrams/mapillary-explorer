@@ -127,17 +127,19 @@ map = (function () {
         };
         var clear = gui.add(gui, 'clear')
         
-        gui.ceiling = 1.0;
-        var ceiling = gui.add(gui, 'ceiling', 0, 1);
-        ceiling.onFinishChange(function(value) {
+        gui.ceiling = '#ff0000';
+        var ceiling = gui.addColor(gui, 'ceiling');
+        ceiling.onChange(function(value) {
+            console.log(value);
             scene.config.layers["mapillary-sequences"].properties.ceiling = value;
             scene.rebuildGeometry();
             // scene.requestRedraw();
         });
 
-        gui.floor = .0;
-        var floor = gui.add(gui, 'floor', 0, 1);
-        floor.onFinishChange(function(value) {
+        gui.floor = '#0000ff';
+        var floor = gui.addColor(gui, 'floor');
+        floor.onChange(function(value) {
+            console.log(value);
             scene.config.layers["mapillary-sequences"].properties.floor = value;
             scene.rebuildGeometry();
             // scene.requestRedraw();
