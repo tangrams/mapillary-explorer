@@ -68,18 +68,17 @@ map = (function () {
     map.setView(map_start_location.slice(0, 3), map_start_location[2]);
     map.on('moveend', updateURL);
 
-    // var hash = new L.Hash(map);
-
     function updateKey(value) {
         keytext = value;
 
         for (layer in scene.config.layers) {
-            // console.log(layer);
             if (layer == "earth") continue;
             scene.config.layers[layer].properties.key_text = value;
         }
+        // not sure why but this seems to prevent an intermediate step of all-red roads
+        // setTimeout(function(){scene.rebuildGeometry();}, 5);
         scene.rebuildGeometry();
-        scene.requestRedraw();
+        // scene.requestRedraw();
         updateURL(); 
     }
 
@@ -90,8 +89,10 @@ map = (function () {
             if (layer == "earth") continue;
             scene.config.layers[layer].properties.value_text = value;
         }
+        // not sure why but this seems to prevent an intermediate step of all-red roads
+        // setTimeout(function(){scene.rebuildGeometry();}, 5);
         scene.rebuildGeometry();
-        scene.requestRedraw();
+        // scene.requestRedraw();
         updateURL();            
     }
 
@@ -127,20 +128,32 @@ map = (function () {
         };
         var clear = gui.add(gui, 'clear')
         
-        gui.ceiling = '#ff0000';
-        var ceiling = gui.addColor(gui, 'ceiling');
-        ceiling.onChange(function(value) {
-            console.log(value);
-            scene.config.layers["mapillary-sequences"].properties.ceiling = value;
+        var now = new Date().getTime();
+        gui.min = 1370000000000;
+        var min = gui.add(gui, 'min', 1370000000000, now).name("min date");
+        min.onChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.min = value;
             scene.rebuildGeometry();
-            // scene.requestRedraw();
         });
 
-        gui.floor = '#0000ff';
-        var floor = gui.addColor(gui, 'floor');
-        floor.onChange(function(value) {
-            console.log(value);
-            scene.config.layers["mapillary-sequences"].properties.floor = value;
+        gui.max = now;
+        var max = gui.add(gui, 'max', 1370000000000, now).name("max date");
+        max.onChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.max = value;
+            scene.rebuildGeometry();
+        });
+
+        gui.newest = '#00ff00';
+        var newest = gui.addColor(gui, 'newest');
+        newest.onChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.newest = value;
+            scene.rebuildGeometry();
+        });
+
+        gui.oldest = '#0000ff';
+        var oldest = gui.addColor(gui, 'oldest');
+        oldest.onChange(function(value) {
+            scene.config.layers["mapillary-sequences"].properties.oldest = value;
             scene.rebuildGeometry();
             // scene.requestRedraw();
         });
@@ -247,7 +260,6 @@ map = (function () {
         updateURL();
     }
     window.setValuesFromSpan = function(e) {
-        console.log(3);
         span = e.target;
         keytext = span.getAttribute("key");
         valuetext = span.getAttribute("value");

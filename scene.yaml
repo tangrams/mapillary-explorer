@@ -121,11 +121,17 @@ layers:
 
     mapillary-sequences:
         data: { source: mapillary }
+        filter: |
+            function() {
+                return feature.captured_at > properties.min && feature.captured_at < properties.max;
+            }
         properties: 
             key_text: ""
             value_text: ""
-            ceiling: '#ff0000'
-            floor: '#0000ff'
+            newest: '#00ff00'
+            oldest: '#0000ff'
+            min: 1370000000000
+            max: 1469183337901
         draw:
             lines:
                 interactive: true
@@ -186,24 +192,20 @@ layers:
                         }
 
                         var t = feature.captured_at;
-                        var min = 946667339334 
-                        var max = 1436400393000
-                        var ceiling = properties.ceiling;
-                        var floor = properties.floor;
+                        var min = properties.min 
+                        var max = properties.max
+                        var newest = properties.newest;
+                        var oldest = properties.oldest;
 
-                        var ceilinghsv = RGBtoHSV(hexToRgb(ceiling));
-                        var floorhsv = RGBtoHSV(hexToRgb(floor));
+                        var newesthsv = RGBtoHSV(hexToRgb(newest));
+                        var oldesthsv = RGBtoHSV(hexToRgb(oldest));
 
                         var h, s, v;
-                        h = ((ceilinghsv.h - floorhsv.h) * (t - min))/(max - min) + floorhsv.h;
-                        s = ((ceilinghsv.s - floorhsv.s) * (t - min))/(max - min) + floorhsv.s;
-                        v = ((ceilinghsv.v - floorhsv.v) * (t - min))/(max - min) + floorhsv.v;
+                        h = ((newesthsv.h - oldesthsv.h) * (t - min))/(max - min) + oldesthsv.h;
+                        s = ((newesthsv.s - oldesthsv.s) * (t - min))/(max - min) + oldesthsv.s;
+                        v = ((newesthsv.v - oldesthsv.v) * (t - min))/(max - min) + oldesthsv.v;
 
-                        var rgb = HSVtoRGB(h, s, v);
-                        console.log(rgb);
-                        return rgb;
-                        # setTimeout('return rgb', 1000);
-                        # setTimeout('function(){console.log("test")}', 1000);
+                        return HSVtoRGB(h, s, v);
                     }
                 width: 3px
             text:
