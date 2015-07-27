@@ -19,7 +19,7 @@ sources:
         url:  //d2munx5tg0hw47.cloudfront.net/tiles/{z}/{x}/{y}.mapbox
         max_zoom: 14
     osm:
-        type: GeoJSONTiles
+        type: GeoJSON
         url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.json?api_key=vector-tiles-HqUVidw
 
 layers:
