@@ -1,6 +1,6 @@
 /*jslint browser: true*/
 /*global Tangram, gui */
-
+console.log('mapillary');
 var picking = false;
 var clicking = false;
 map = (function () {
@@ -160,6 +160,43 @@ map = (function () {
         
     }
 
+    function getJSON(url, callback) {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function() {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var jsonResponse = JSON.parse(xmlhttp.responseText);
+                callback(jsonResponse);
+            } else {
+                return false;
+            }
+        }
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+    }
+
+    function fetchMapillaryImage(location, element) {
+
+        console.log(location);
+
+        url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=100&minca=145&maxca=200&limit=1"
+
+        getJSON(url, handle);
+        // element = element
+        function handle(data) {
+            console.log('json data:');
+            console.log(data[0]);
+            key = data[0].key
+            var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
+            console.log(imageurl);
+            var elem = document.createElement("img");
+            elem.src = imageurl;
+            element.appendChild(elem);
+
+            // element.innerHTML = imageurl;
+        }
+        // return imageurl;
+    }
+
     // var scene.picking = false;
     // Feature selection
     function initFeatureSelection () {
@@ -173,6 +210,11 @@ map = (function () {
         scene.container.addEventListener('mousemove', function (event) {
             if (picking && !clicking) return;
             var pixel = { x: event.clientX, y: event.clientY };
+
+            var latlng = map.layerPointToLatLng(new L.Point(pixel.x, pixel.y));
+
+            fetchMapillaryImage(latlng, selection_info);
+
             scene.getFeatureAt(pixel).then(function(selection) {    
                 if (!selection) {
                     return;
