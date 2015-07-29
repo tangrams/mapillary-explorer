@@ -164,9 +164,17 @@ map = (function () {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                var jsonResponse = JSON.parse(xmlhttp.responseText);
-                callback(jsonResponse);
+                var response = JSON.parse(xmlhttp.responseText);
+                // console.log("response:", typeof(response), response.length, response)
+                if (typeof(response) == "object" && response.length > 0) {
+                    // console.log("response:", response, response.length)
+                    callback(response);
+                } else {
+                    console.log("empty response");
+                    return false;
+                }
             } else {
+                // console.log(xmlhttp.readyState, xmlhttp.status);
                 return false;
             }
         }
@@ -176,23 +184,19 @@ map = (function () {
 
     function fetchMapillaryImage(location, element) {
 
-        console.log(location);
-
-        url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=100&minca=145&maxca=200&limit=1"
+        // console.log(location);
+        var dist = 100000 / Math.pow(map.getZoom().toFixed(1), 2); 
+        var url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=" + dist + "&limit=1"
 
         getJSON(url, handle);
         // element = element
         function handle(data) {
-            console.log('json data:');
-            console.log(data[0]);
             key = data[0].key
+            console.log(key)
             var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
-            console.log(imageurl);
             var elem = document.createElement("img");
             elem.src = imageurl;
             element.appendChild(elem);
-
-            // element.innerHTML = imageurl;
         }
         // return imageurl;
     }
@@ -212,8 +216,6 @@ map = (function () {
             var pixel = { x: event.clientX, y: event.clientY };
 
             var latlng = map.layerPointToLatLng(new L.Point(pixel.x, pixel.y));
-
-            fetchMapillaryImage(latlng, selection_info);
 
             scene.getFeatureAt(pixel).then(function(selection) {    
                 if (!selection) {
@@ -239,6 +241,7 @@ map = (function () {
                             selection_info.appendChild(line);
                         }
                     scene.container.appendChild(selection_info);
+                    fetchMapillaryImage(latlng, selection_info);
                     // console.log(toString(selection_info));
 
                     } else clearLabel();
