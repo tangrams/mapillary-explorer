@@ -169,39 +169,31 @@ map = (function () {
                 if (typeof(response) == "object" && response.length > 0) {
                     // console.log("response:", response, response.length)
                     callback(response);
-                } else {
-                    console.log("empty response");
-                    return false;
                 }
-            } else {
-                // console.log(xmlhttp.readyState, xmlhttp.status);
-                return false;
             }
         }
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
     }
 
-    function fetchMapillaryImage(location, element) {
+    function fetchMapillaryImage(location) {
 
-        // console.log(location);
         var dist = 100000 / Math.pow(map.getZoom().toFixed(1), 2); 
+        console.log(dist);
         var url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=" + dist + "&limit=1"
 
         getJSON(url, handle);
-        // element = element
+
         function handle(data) {
             key = data[0].key
-            console.log(key)
             var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
-            var elem = document.createElement("img");
-            elem.src = imageurl;
-            element.appendChild(elem);
+            selectionImage.src = imageurl;
         }
-        // return imageurl;
     }
 
-    // var scene.picking = false;
+    var selectionImage = {};
+    var spinner = "";
+
     // Feature selection
     function initFeatureSelection () {
         // Selection info shown on hover
@@ -210,6 +202,7 @@ map = (function () {
         selection_info.style.display = 'block';
         selection_info.style.zindex = 1000;
 
+        
         // Show selected feature on hover
         scene.container.addEventListener('mousemove', function (event) {
             if (picking && !clicking) return;
@@ -241,8 +234,12 @@ map = (function () {
                             selection_info.appendChild(line);
                         }
                     scene.container.appendChild(selection_info);
-                    fetchMapillaryImage(latlng, selection_info);
-                    // console.log(toString(selection_info));
+                    selectionImage = document.createElement("img");
+                    selectionImage.src = "/spinner.gif";
+                    spinner = toString(selectionImage.src);
+                    selection_info.appendChild(selectionImage);
+
+                    fetchMapillaryImage(latlng);
 
                     } else clearLabel();
                 }
