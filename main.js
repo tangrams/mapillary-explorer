@@ -160,39 +160,53 @@ map = (function () {
         
     }
 
+    var selectionImage = {};
+    var spinner = "";
+    var trying = [];
+
     function getJSON(url, callback) {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                var response = JSON.parse(xmlhttp.responseText);
-                // console.log("response:", typeof(response), response.length, response)
-                if (typeof(response) == "object" && response.length > 0) {
-                    // console.log("response:", response, response.length)
-                    callback(response);
+            if (xmlhttp.readyState == 4) {
+                // console.log(xmlhttp.status, trying);
+                if (xmlhttp.status == 200) {
+                    var response = JSON.parse(xmlhttp.responseText);
+                    console.log("response:", typeof(response), response.length, response)
+                    if (typeof(response) == "object" && response.length > 0) {
+                        // console.log("response:", response, response.length)
+                        callback(response);
+                    }
+                    return;
                 }
+            }
+            if (selectionImage.src == spinner) {
+                selectionImage.src = "";
             }
         }
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
+        return xmlhttp;
     }
 
     function fetchMapillaryImage(location) {
 
         var dist = 100000 / Math.pow(map.getZoom().toFixed(1), 2); 
-        console.log(dist);
+        // console.log(dist);
         var url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=" + dist + "&limit=1"
 
+        // if (trying.length > 0) {
+        //     trying.pop().abort();
+        // }
+        // trying.push(getJSON(url, handle));
         getJSON(url, handle);
 
         function handle(data) {
+            // trying.pop();
             key = data[0].key
             var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
             selectionImage.src = imageurl;
         }
     }
-
-    var selectionImage = {};
-    var spinner = "";
 
     // Feature selection
     function initFeatureSelection () {
