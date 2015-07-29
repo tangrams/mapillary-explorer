@@ -250,7 +250,7 @@ map = (function () {
                     scene.container.appendChild(selection_info);
                     selectionImage = document.createElement("img");
                     selectionImage.style.opacity = .9;
-                    selectionImage.src = "mapillary-explorer/spinner.gif";
+                    selectionImage.src = "spinner.gif";
                     spinner = toString(selectionImage.src);
                     selection_info.appendChild(selectionImage);
 
