@@ -1,11 +1,13 @@
 /*jslint browser: true*/
 /*global Tangram, gui */
-console.log('mapillary');
 var picking = false;
 var clicking = false;
 map = (function () {
-// (function () {
     // 'use strict';
+
+    //
+    // Leaflet setup
+    //
 
     var locations = {
         'Oakland': [37.8044, -122.2708, 15],
@@ -39,8 +41,6 @@ map = (function () {
 
     // Put current state on URL
     window.updateURL = function() {
-        // if (picking) return;
-        // console.log(window.location.hash);
         var map_latlng = map.getCenter();
         var url_options = [map.getZoom().toFixed(1), map_latlng.lat.toFixed(4), map_latlng.lng.toFixed(4), escape(keytext), escape(valuetext)];
         window.location.hash = url_options.join('/');
@@ -68,6 +68,11 @@ map = (function () {
     map.setView(map_start_location.slice(0, 3), map_start_location[2]);
     map.on('moveend', updateURL);
 
+
+    //
+    // GUI
+    //
+    
     function updateKey(value) {
         keytext = value;
 
@@ -163,61 +168,60 @@ map = (function () {
     var selectionImage = {};
     var spinner = "";
     var trying = [];
+    var xmlhttp = {};
 
     function getJSON(url, callback) {
-        var xmlhttp = new XMLHttpRequest();
+        selectionImage.src = spinner;
+        xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4) {
-                // console.log(xmlhttp.status, trying);
+                selectionImage.src = "";
                 if (xmlhttp.status == 200) {
                     var response = JSON.parse(xmlhttp.responseText);
-                    console.log("response:", typeof(response), response.length, response)
                     if (typeof(response) == "object" && response.length > 0) {
-                        // console.log("response:", response, response.length)
                         callback(response);
+                        return;
                     }
-                    return;
                 }
-            }
-            if (selectionImage.src == spinner) {
-                selectionImage.src = "";
             }
         }
         xmlhttp.open("GET", url, true);
         xmlhttp.send();
-        return xmlhttp;
     }
 
     function fetchMapillaryImage(location) {
-
-        var dist = 100000 / Math.pow(map.getZoom().toFixed(1), 2); 
-        // console.log(dist);
+        // search a wider area at lower zooms
+        var dist = Math.min(scene.meters_per_pixel * scene.zoom, 10000);
         var url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=" + dist + "&limit=1"
 
-        // if (trying.length > 0) {
-        //     trying.pop().abort();
-        // }
-        // trying.push(getJSON(url, handle));
+        // only allow one request at a time
+        if (trying.length > 0) {
+            trying.pop();
+            xmlhttp.abort();
+        }
+        trying.push(1);
         getJSON(url, handle);
 
         function handle(data) {
-            // trying.pop();
+            trying.pop();
             key = data[0].key
+            // set src of the popup's image to the returned url
             var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
             selectionImage.src = imageurl;
+            selectionImage.style.margin = "0";
         }
     }
 
     // Feature selection
     function initFeatureSelection () {
-        // Selection info shown on hover
+        // build selection info popup
         window.selection_info = document.createElement('div');
         selection_info.setAttribute('class', 'label');
         selection_info.style.display = 'block';
         selection_info.style.zindex = 1000;
 
         
-        // Show selected feature on hover
+        // Show popup when hovering over an interactive feature
         scene.container.addEventListener('mousemove', function (event) {
             if (picking && !clicking) return;
             var pixel = { x: event.clientX, y: event.clientY };
@@ -225,6 +229,7 @@ map = (function () {
             var latlng = map.layerPointToLatLng(new L.Point(pixel.x, pixel.y));
 
             scene.getFeatureAt(pixel).then(function(selection) {    
+                clearLabel();
                 if (!selection) {
                     return;
                 }
@@ -234,7 +239,7 @@ map = (function () {
                         selection_info.style.left = (pixel.x + 5) + 'px';
                         selection_info.style.top = (pixel.y + 15) + 'px';
                         var obj = JSON.parse(JSON.stringify(feature.properties));
-                        clearLabel();
+                        // clearLabel();
                         for (x in feature.properties) {
                             if (x == "keys" || x == "cas" ) continue;
                             val = feature.properties[x]
@@ -249,16 +254,17 @@ map = (function () {
                         }
                     scene.container.appendChild(selection_info);
                     selectionImage = document.createElement("img");
-                    // selectionImage.style.opacity = .9;
                     selectionImage.src = "spinner.gif";
-                    spinner = toString(selectionImage.src);
+                    spinner = selectionImage.src;
                     selection_info.appendChild(selectionImage);
+                    selectionImage.style.display = "block";
+                    // selectionImage.style.clear = "left";
+                    selectionImage.style.margin = "10px auto";
 
                     fetchMapillaryImage(latlng);
 
-                    } else clearLabel();
+                    }
                 }
-                else clearLabel();
             });
 
             // Don't show labels while panning
@@ -304,6 +310,7 @@ map = (function () {
     }
 
     window.clearValues = function() {
+
         if (selection_info.parentNode != null) selection_info.parentNode.removeChild(selection_info);
         picking = false;
         keytext = "";
@@ -348,4 +355,3 @@ map = (function () {
     return map;
 
 }());
-
