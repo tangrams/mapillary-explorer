@@ -249,7 +249,7 @@ map = (function () {
                         }
                     scene.container.appendChild(selection_info);
                     selectionImage = document.createElement("img");
-                    selectionImage.src = "/spinner.gif";
+                    selectionImage.src = "spinner.gif";
                     spinner = toString(selectionImage.src);
                     selection_info.appendChild(selectionImage);
 
