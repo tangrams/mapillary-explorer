@@ -17,6 +17,7 @@ map = (function () {
     };
 
     var map_start_location = locations['Malmö'];
+    var mapillary_client_id = "MkJKbDA0bnZuZlcxeTJHTmFqN3g1dzo0NWY2NDVlYWJhM2Q0ZGZj";
 
     /*** URL parsing ***/
 
@@ -178,7 +179,7 @@ map = (function () {
                 selectionImage.src = "";
                 if (xmlhttp.status == 200) {
                     var response = JSON.parse(xmlhttp.responseText);
-                    if (typeof(response) == "object" && response.length > 0) {
+                    if (typeof(response) == "object") {
                         callback(response);
                         return;
                     }
@@ -191,8 +192,7 @@ map = (function () {
 
     function fetchMapillaryImage(location) {
         // search a wider area at lower zooms
-        var dist = Math.min(scene.meters_per_pixel * scene.zoom, 10000);
-        var url = "http://api.mapillary.com/v1/im/close?lat=" + location.lat + "&lon=" + location.lng + "&distance=" + dist + "&limit=1"
+        var url = "https://a.mapillary.com/v2/search/im/close2?lat=" + location.lat + "&lon=" + location.lng + "&client_id=" + mapillary_client_id
 
         // only allow one request at a time
         if (trying.length > 0) {
@@ -204,7 +204,7 @@ map = (function () {
 
         function handle(data) {
             trying.pop();
-            key = data[0].key
+            key = data.key
             // set src of the popup's image to the returned url
             var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
             selectionImage.src = imageurl;
