@@ -177,12 +177,15 @@ map = (function () {
         xmlhttp.onreadystatechange = function() {
             if (xmlhttp.readyState == 4) {
                 selectionImage.src = "";
+                console.log('status:', xmlhttp.status)
                 if (xmlhttp.status == 200) {
                     var response = JSON.parse(xmlhttp.responseText);
                     if (typeof(response) == "object") {
                         callback(response);
                         return;
                     }
+                } else if (xmlhttp.status > 400) {
+                    window.selection_info.removeChild(selectionImage);
                 }
             }
         }
@@ -191,7 +194,7 @@ map = (function () {
     }
 
     function fetchMapillaryImage(location) {
-        // search a wider area at lower zooms
+        // use v2 api
         var url = "https://a.mapillary.com/v2/search/im/close2?lat=" + location.lat + "&lon=" + location.lng + "&client_id=" + mapillary_client_id
 
         // only allow one request at a time
@@ -205,9 +208,13 @@ map = (function () {
         function handle(data) {
             trying.pop();
             key = data.key
-            // set src of the popup's image to the returned url
-            var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
-            selectionImage.src = imageurl;
+            if (typeof(key) != "undefined") {
+                // set src of the popup's image to the returned url
+                var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
+                selectionImage.src = imageurl;
+            } else {
+                selectionImage.src = "";
+            }
             selectionImage.style.margin = "0";
         }
     }
