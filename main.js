@@ -105,7 +105,7 @@ map = (function () {
     // Create dat GUI
     var gui = new dat.GUI({ autoPlace: true, hideable: false, width: 300 });
     function addGUI () {
-        gui.domElement.parentNode.style.zIndex = 5; // make sure GUI is on top of map
+        gui.domElement.parentNode.style.zIndex = 500; // make sure GUI is on top of map
         window.gui = gui;
 
         gui.keyinput = keytext;
