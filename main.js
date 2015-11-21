@@ -225,11 +225,11 @@ map = (function () {
         window.selection_info = document.createElement('div');
         selection_info.setAttribute('class', 'label');
         selection_info.style.display = 'block';
-        selection_info.style.zindex = 1000;
+        selection_info.style["z-index"] = 1000;
 
         
         // Show popup when hovering over an interactive feature
-        scene.container.addEventListener('mousemove', function (event) {
+        map.getContainer().addEventListener('mousemove', function (event) {
             if (picking && !clicking) return;
             var pixel = { x: event.clientX, y: event.clientY };
 
@@ -259,7 +259,7 @@ map = (function () {
                             line.onmouseup = function(e){setValuesFromSpan(e)};
                             selection_info.appendChild(line);
                         }
-                    scene.container.appendChild(selection_info);
+                    map.getContainer().appendChild(selection_info);
                     selectionImage = document.createElement("img");
                     selectionImage.src = "spinner.gif";
                     spinner = selectionImage.src;
@@ -291,13 +291,13 @@ map = (function () {
         var clickhash = map.getCenter();
 
         // catch mousedown
-        scene.container.onmousedown = function (event) {
+        map.getContainer().onmousedown = function (event) {
             clicking = true;
             clickhash = map.getCenter().lat + map.getCenter().lng;
         };
 
         // catch mouseup
-        scene.container.onmouseup = function (event) {
+        map.getContainer().onmouseup = function (event) {
             clicking = false;
             // check to see if the mouse moved since the mousedown
             hashcheck = map.getCenter().lat + map.getCenter().lng;
