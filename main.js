@@ -171,54 +171,6 @@ map = (function () {
     var trying = [];
     var xmlhttp = {};
 
-    function getJSON(url, callback) {
-        selectionImage.src = spinner;
-        xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function() {
-            if (xmlhttp.readyState == 4) {
-                selectionImage.src = "";
-                console.log('status:', xmlhttp.status)
-                if (xmlhttp.status == 200) {
-                    var response = JSON.parse(xmlhttp.responseText);
-                    if (typeof(response) == "object") {
-                        callback(response);
-                        return;
-                    }
-                } else if (xmlhttp.status > 400) {
-                    window.selection_info.removeChild(selectionImage);
-                }
-            }
-        }
-        xmlhttp.open("GET", url, true);
-        xmlhttp.send();
-    }
-
-    function fetchMapillaryImage(location) {
-        // use v2 api
-        var url = "https://a.mapillary.com/v2/search/im/close2?lat=" + location.lat + "&lon=" + location.lng + "&client_id=" + mapillary_client_id
-
-        // only allow one request at a time
-        if (trying.length > 0) {
-            trying.pop();
-            xmlhttp.abort();
-        }
-        trying.push(1);
-        getJSON(url, handle);
-
-        function handle(data) {
-            trying.pop();
-            key = data.key
-            if (typeof(key) != "undefined") {
-                // set src of the popup's image to the returned url
-                var imageurl = "http://images.mapillary.com/" + key + "/thumb-320.jpg";
-                selectionImage.src = imageurl;
-            } else {
-                selectionImage.src = "";
-            }
-            selectionImage.style.margin = "0";
-        }
-    }
-
     // Feature selection
     function initFeatureSelection () {
         // build selection info popup
@@ -260,15 +212,9 @@ map = (function () {
                             selection_info.appendChild(line);
                         }
                     map.getContainer().appendChild(selection_info);
-                    selectionImage = document.createElement("img");
-                    selectionImage.src = "spinner.gif";
-                    spinner = selectionImage.src;
-                    selection_info.appendChild(selectionImage);
-                    selectionImage.style.display = "block";
-                    // selectionImage.style.clear = "left";
-                    selectionImage.style.margin = "10px auto";
 
-                    fetchMapillaryImage(latlng);
+                    // fetch mapillary image
+                    mly.moveCloseTo(latlng.lat, latlng.lng);
 
                     }
                 }
@@ -362,3 +308,17 @@ map = (function () {
     return map;
 
 }());
+
+// mapillary.js integration
+
+var mly = new Mapillary
+  .Viewer('mly', // container id
+          'bjVLVDg5eXFocUZCbmxQRnYtUzR6dzpjNjUzNWU0MWJlMDRkNjU4', // your Client ID
+          'ytfE1_iD_N-jmHfTHkj1Ug',  // photoId at which the viewer initializes
+          {
+            cover: false,
+            attribution: false,
+            image: true,
+            loading: true
+        });
+
