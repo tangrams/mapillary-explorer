@@ -13,7 +13,7 @@
     <title>Mapillary Explorer</title>
 
     <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v1.0.0-beta.2/leaflet.css" />
-    <link rel="stylesheet" href="node_modules/mapillary-js/dist/mapillary-js.css" />
+    <link rel="stylesheet" href="node_modules/mapillary-js/dist/mapillary-js.min.css" />
 
     <style>
         body {
@@ -58,14 +58,23 @@
         outline: 2px solid gold;
     }
 
-    #mly {
-        z-index: 10000;
-        position: absolute;
-        width: 600px;
-        max-width: 800px;
-        float: left;
-        /*margin-left: 10px;*/
-    }
+     .mly-wrapper {
+         background-color: white;
+         position: absolute;
+         top: 5px;
+         right: 5px;
+         width: 500px;
+         height: 380px;
+         z-index: 1000;
+         padding: 5px;
+         border-radius: 5px;
+     }
+
+     #mly {
+         position: relative;
+         width: 100%;
+         height: auto;
+     }
 
 /*    .domRenderer, .domRenderer.canvas {
         width: 100%;
@@ -76,7 +85,9 @@
   </head>
 
   <body>
-    <div id="mly"></div>
+    <div class="mly-wrapper">
+      <div id="mly"></div>
+    </div>
     <div id="map"></div>
 
     <script src="node_modules/mapillary-js/dist/mapillary-js.min.js"></script>
