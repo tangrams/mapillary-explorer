@@ -2,6 +2,8 @@
 /*global Tangram, gui */
 var picking = false;
 var clicking = false;
+var mlyMarker = undefined;
+
 map = (function () {
     // 'use strict';
 
@@ -179,7 +181,15 @@ map = (function () {
         selection_info.style.display = 'block';
         selection_info.style["z-index"] = 1000;
 
-        
+      map.getContainer().addEventListener('click', function (event) {
+        var pixel = { x: event.clientX, y: event.clientY };
+        var latlng = map.layerPointToLatLng(new L.Point(pixel.x, pixel.y));
+
+        var isLabel = event.target.parentNode.classList.contains('label')
+        if (!isLabel) {
+          mly.moveCloseTo(latlng.lat, latlng.lng);
+        }
+      })
         // Show popup when hovering over an interactive feature
         map.getContainer().addEventListener('mousemove', function (event) {
             if (picking && !clicking) return;
@@ -212,10 +222,6 @@ map = (function () {
                             selection_info.appendChild(line);
                         }
                     map.getContainer().appendChild(selection_info);
-
-                    // fetch mapillary image
-                    mly.moveCloseTo(latlng.lat, latlng.lng);
-
                     }
                 }
             });
@@ -322,3 +328,13 @@ var mly = new Mapillary
             loading: true
         });
 
+mly.on('nodechanged', function (node) {
+  var latlng = node.latLon;
+
+  if (!mlyMarker) {
+    mlyMarker = L.marker(latlng);
+    mlyMarker.addTo(map);
+  } else {
+    mlyMarker.setLatLng(latlng);
+  }
+});
