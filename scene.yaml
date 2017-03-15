@@ -20,7 +20,9 @@ sources:
         max_zoom: 14
     osm:
         type: GeoJSON
-        url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.json?api_key=vector-tiles-HqUVidw
+        url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.json
+        url_params:
+            api_key: vector-tiles-HqUVidw
 
 layers:
     earth:
