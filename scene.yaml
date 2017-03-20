@@ -18,15 +18,15 @@ sources:
         type: MVT
         url:  //d2munx5tg0hw47.cloudfront.net/tiles/{z}/{x}/{y}.mapbox
         max_zoom: 14
-    osm:
+    mapzen:
         type: GeoJSON
-        url:  //vector.mapzen.com/osm/all/{z}/{x}/{y}.json
+        url:  //vector.mapzen.com/mapzen/all/{z}/{x}/{y}.json
         url_params:
             api_key: vector-tiles-HqUVidw
 
 layers:
     earth:
-        data: { source: osm }
+        data: { source: mapzen }
         properties: 
             key_text: ""
             value_text: ""
@@ -36,7 +36,7 @@ layers:
                 color: [.5, .5, .5]
 
     water:
-        data: { source: osm }
+        data: { source: mapzen }
         properties: 
             key_text: ""
             value_text: ""
@@ -50,7 +50,7 @@ layers:
                 width: 1px
 
     roads:
-        data: { source: osm }
+        data: { source: mapzen }
         properties: 
             key_text: ""
             value_text: ""
@@ -84,7 +84,7 @@ layers:
                         stroke: { color: black, width: 4 }
 
     buildings:
-        data: { source: osm }
+        data: { source: mapzen }
         properties: 
             key_text: ""
             value_text: ""
@@ -115,7 +115,7 @@ layers:
                         fill: white
 
     places:
-        data: { source: osm }
+        data: { source: mapzen }
         properties: 
             key_text: ""
             value_text: ""
